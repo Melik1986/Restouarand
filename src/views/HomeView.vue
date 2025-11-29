@@ -1,16 +1,53 @@
 <script setup lang="ts">
-import ProductCard from '@/components/features/ProductCard.vue';
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
+import { ref, onMounted } from 'vue';
+
+import ProductsGrid from '@/components/features/ProductsGrid.vue';
 import VideoScrollHero from '@/components/features/VideoScrollHero.vue';
 import TheFooter from '@/components/layout/TheFooter.vue';
 import TheNavbar from '@/components/layout/TheNavbar.vue';
 import SectionTitle from '@/components/ui/SectionTitle.vue';
 
-const products = [
-  { id: 1, title: 'Cakes', description: 'Pastery specialties with 100% chocolate' },
-  { id: 2, title: 'Piece', description: 'Pastery specialties with 100% chocolate' },
-  { id: 3, title: 'Make a Wish', description: 'Pastery specialties with 100% chocolate' },
-  { id: 4, title: 'Lenten Sweet', description: 'Pastery specialties with 100% chocolate' },
-];
+gsap.registerPlugin(ScrollTrigger);
+
+const aboutSectionRef = ref<HTMLElement | null>(null);
+const aboutTextRef = ref<HTMLElement | null>(null);
+const aboutImageRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  if (aboutSectionRef.value) {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: aboutSectionRef.value,
+        start: 'top bottom-=100',
+        toggleActions: 'play none none reverse',
+      },
+    });
+
+    if (aboutTextRef.value) {
+      tl.from(aboutTextRef.value, {
+        x: -50,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out',
+      });
+    }
+
+    if (aboutImageRef.value) {
+      tl.from(
+        aboutImageRef.value,
+        {
+          x: 50,
+          opacity: 0,
+          duration: 1,
+          ease: 'power3.out',
+        },
+        '-=0.8' // Запускаем чуть раньше окончания предыдущей анимации
+      );
+    }
+  }
+});
 </script>
 
 <template>
@@ -22,26 +59,12 @@ const products = [
       <VideoScrollHero />
 
       <!-- Products Section -->
-      <section class="py-24 bg-background-secondary">
-        <div class="container mx-auto px-6">
-          <!-- В макете нет заголовка у этой секции, но товары идут сразу. Можно оставить без title или добавить скрытый -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-            <ProductCard
-              v-for="product in products"
-              :key="product.id"
-              :title="product.title"
-              :description="product.description"
-            />
-          </div>
-        </div>
-      </section>
+      <ProductsGrid />
 
-      <!-- About Us Section (Optional additional text block if needed, 
-           but footer covers "About Us" in the mock usually. 
-           Let's add a specific section if "Sweet Tooth" intro is separate) -->
-      <section class="py-24 bg-background-primary relative overflow-hidden">
+      <!-- About Us Section -->
+      <section ref="aboutSectionRef" class="py-24 bg-background-primary relative overflow-hidden">
         <div class="container mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
-          <div class="w-full md:w-1/2">
+          <div ref="aboutTextRef" class="w-full md:w-1/2">
             <SectionTitle
               title="Sweet Tooth"
               align="left"
@@ -52,9 +75,9 @@ const products = [
               fringilla odio eget, tincidunt nunc. Duis aliquet pulvinar ante tempor tincidunt.
             </p>
           </div>
-          <div class="w-full md:w-1/2 flex justify-center">
+          <div ref="aboutImageRef" class="w-full md:w-1/2 flex justify-center">
             <img
-              src="https://placehold.co/500x400/1a1a1a/C5A059?text=Interior"
+              src="/Interior.jpg"
               alt="Interior"
               class="rounded-lg shadow-2xl grayscale hover:grayscale-0 transition-all duration-500"
             />

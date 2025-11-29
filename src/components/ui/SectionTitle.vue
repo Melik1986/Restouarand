@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
+import { ref, onMounted } from 'vue';
+
+gsap.registerPlugin(ScrollTrigger);
+
 interface Props {
   title: string;
   subtitle?: string;
@@ -9,10 +15,29 @@ withDefaults(defineProps<Props>(), {
   subtitle: '',
   align: 'center',
 });
+
+const rootRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  if (rootRef.value) {
+    gsap.from(rootRef.value.children, {
+      scrollTrigger: {
+        trigger: rootRef.value,
+        start: 'top bottom-=50',
+        toggleActions: 'play none none reverse',
+      },
+      y: 30,
+      opacity: 0,
+      duration: 1,
+      stagger: 0.2,
+      ease: 'power3.out',
+    });
+  }
+});
 </script>
 
 <template>
-  <div :class="['flex flex-col mb-12', `text-${align}`]">
+  <div ref="rootRef" :class="['flex flex-col mb-12', `text-${align}`]">
     <div v-if="subtitle" class="text-primary-main mb-4 flex items-center gap-4 justify-center">
       <!-- Декоративные линии, если нужно, можно добавить -->
       <span class="h-[1px] w-12 bg-primary-dark opacity-50"></span>

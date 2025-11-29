@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
+
+import IconCrown from '@/components/ui/icons/IconCrown.vue';
 
 const isScrolled = ref(false);
 const isMenuOpen = ref(false);
@@ -31,7 +33,8 @@ onUnmounted(() => {
     <div class="container mx-auto flex items-center justify-between">
       <!-- Logo -->
       <div class="flex flex-col items-center">
-        <span class="text-primary-main text-2xl font-script">Sweet Tooth</span>
+        <IconCrown class="w-6 h-6 mb-1 text-primary-main" />
+        <span class="text-primary-main text-lg font-script tracking-widest">Sweet Tooth</span>
       </div>
 
       <!-- Desktop Menu -->

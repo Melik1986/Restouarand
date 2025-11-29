@@ -21,4 +21,25 @@
   .font-script {
     font-family: 'Great Vibes', cursive;
   }
+
+  /* Декоративные крошки/частицы */
+  .crumb {
+    position: absolute;
+    background-color: #c5a059;
+    border-radius: 50%;
+    opacity: 0.6;
+  }
+
+  .crumb-sm {
+    width: 4px;
+    height: 4px;
+  }
+  .crumb-md {
+    width: 6px;
+    height: 6px;
+  }
+  .crumb-lg {
+    width: 8px;
+    height: 8px;
+  }
 }

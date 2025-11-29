@@ -7,82 +7,108 @@ import UiButton from '../ui/UiButton.vue';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const canvasRef = ref<HTMLCanvasElement | null>(null);
+const canvasRef1 = ref<HTMLCanvasElement | null>(null);
+const canvasRef2 = ref<HTMLCanvasElement | null>(null);
 const sectionRef = ref<HTMLElement | null>(null);
 
-const frameCount = 100;
-const currentFrame = { index: 0 };
-const images: HTMLImageElement[] = [];
+const model1Count = 27;
+const model2Count = 13;
+const currentFrame1 = { index: 0 };
+const currentFrame2 = { index: 0 };
+const model1Images: HTMLImageElement[] = [];
+const model2Images: HTMLImageElement[] = [];
 const imagesLoaded = ref(0);
 
 const preloadImages = () => {
-  for (let i = 1; i <= frameCount; i++) {
+  // Load Model 1
+  for (let i = 1; i <= model1Count; i++) {
     const img = new Image();
-    // Используем SVG или плейсхолдеры если нет реальных кадров
     const frameIndex = String(i).padStart(4, '0');
-    img.src = `/animation/${frameIndex}.svg`; // Предполагаем, что есть SVG, или используем заглушку
-    // Если SVG нет, можно было бы рисовать программно, но для простоты предположим что они есть
-    // (скрипт генерации был удален, но можно добавить fallback на error)
-
+    img.src = `/animation/model-1/${frameIndex}.png`;
     img.onload = () => {
       imagesLoaded.value++;
-      if (imagesLoaded.value === 1) {
-        render(); // Render first frame immediately
-      }
+      if (imagesLoaded.value === 1) render1();
     };
-    img.onerror = () => {
-      // Fallback logic could go here
-      // console.warn(`Failed to load frame ${frameIndex}`);
+    model1Images.push(img);
+  }
+
+  // Load Model 2
+  for (let i = 1; i <= model2Count; i++) {
+    const img = new Image();
+    const frameIndex = String(i).padStart(4, '0');
+    img.src = `/animation/model-2/${frameIndex}.png`;
+    img.onload = () => {
+      imagesLoaded.value++;
     };
-    images.push(img);
+    model2Images.push(img);
   }
 };
 
-const render = () => {
-  const canvas = canvasRef.value;
+const renderCanvas = (
+  canvas: HTMLCanvasElement | null,
+  images: HTMLImageElement[],
+  frameIndex: number
+) => {
   const context = canvas?.getContext('2d');
   if (!canvas || !context) return;
 
-  const img = images[currentFrame.index];
-  if (img) {
-    // Cover logic for canvas
-    const hRatio = canvas.width / img.width;
-    const vRatio = canvas.height / img.height;
-    const ratio = Math.max(hRatio, vRatio);
-    const centerShiftX = (canvas.width - img.width * ratio) / 2;
-    const centerShiftY = (canvas.height - img.height * ratio) / 2;
+  const img = images[frameIndex];
+  if (img && img.complete && img.naturalHeight !== 0) {
+    const isMobile = canvas.width < 768;
+    let ratio;
+
+    if (isMobile) {
+      // На мобильных подгоняем по ширине с отступами
+      ratio = (canvas.width * 0.9) / img.width;
+    } else {
+      // На десктопе ограничиваем высоту (например, 75% высоты экрана)
+      // Используем Math.min для 'contain' логики, чтобы не обрезать,
+      // но также учитываем, чтобы не было слишком мелко
+      const hRatio = (canvas.width * 0.5) / img.width; // Занимать не более 50% ширины
+      const vRatio = (canvas.height * 0.75) / img.height; // Занимать не более 75% высоты
+      ratio = Math.min(hRatio, vRatio);
+    }
+
+    // Смещаем центр изображения вправо
+    let centerShiftX;
+    let centerShiftY;
+
+    if (isMobile) {
+      centerShiftX = (canvas.width - img.width * ratio) / 2; // Центрируем по горизонтали
+      centerShiftY = canvas.height * 0.6 - (img.height * ratio) / 2; // Смещаем чуть ниже центра
+    } else {
+      centerShiftX = canvas.width * 0.75 - (img.width * ratio) / 2; // Справа на десктопе
+      centerShiftY = (canvas.height - img.height * ratio) / 2; // Центрируем по вертикали
+    }
 
     context.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Если изображение не загрузилось или ошибка, рисуем фон
-    if (img.complete && img.naturalHeight !== 0) {
-      context.drawImage(
-        img,
-        0,
-        0,
-        img.width,
-        img.height,
-        centerShiftX,
-        centerShiftY,
-        img.width * ratio,
-        img.height * ratio
-      );
-    } else {
-      context.fillStyle = '#1a1a1a';
-      context.fillRect(0, 0, canvas.width, canvas.height);
-      context.fillStyle = '#C5A059';
-      context.font = '30px Arial';
-      context.textAlign = 'center';
-      context.fillText('Video Effect Placeholder', canvas.width / 2, canvas.height / 2);
-    }
+    context.drawImage(
+      img,
+      0,
+      0,
+      img.width,
+      img.height,
+      centerShiftX,
+      centerShiftY,
+      img.width * ratio,
+      img.height * ratio
+    );
   }
 };
 
+const render1 = () => renderCanvas(canvasRef1.value, model1Images, currentFrame1.index);
+const render2 = () => renderCanvas(canvasRef2.value, model2Images, currentFrame2.index);
+
 const handleResize = () => {
-  if (canvasRef.value) {
-    canvasRef.value.width = window.innerWidth;
-    canvasRef.value.height = window.innerHeight;
-    render();
+  if (canvasRef1.value) {
+    canvasRef1.value.width = window.innerWidth;
+    canvasRef1.value.height = window.innerHeight;
+    render1();
+  }
+  if (canvasRef2.value) {
+    canvasRef2.value.width = window.innerWidth;
+    canvasRef2.value.height = window.innerHeight;
+    render2();
   }
 };
 
@@ -95,19 +121,38 @@ onMounted(() => {
     scrollTrigger: {
       trigger: sectionRef.value,
       start: 'top top',
-      end: 'bottom bottom',
+      end: '+=4000', // Создаем виртуальный скролл на 4000px
       scrub: 1,
-      pin: canvasRef.value, // Pin the canvas
-      // markers: true, // Debug
+      pin: true, // Пинним саму секцию, а не внутренний контейнер
     },
-    onUpdate: render, // Redraw on every tick
   });
 
-  tl.to(currentFrame, {
-    index: frameCount - 1,
+  // 1. Анимация кадров Model 1
+  tl.to(currentFrame1, {
+    index: model1Count - 1,
     snap: 'index',
     ease: 'none',
-  });
+    duration: 2,
+    onUpdate: render1,
+  })
+    // 2. Model 1 уезжает вправо, Model 2 появляется
+    .to(canvasRef1.value, { x: '150%', duration: 1, ease: 'power1.inOut' }, '+=0.2')
+    .fromTo(
+      canvasRef2.value,
+      { x: '-100%', autoAlpha: 1 },
+      { x: '0%', duration: 1, ease: 'power1.inOut' },
+      '<'
+    )
+    // 3. Анимация кадров Model 2
+    .to(currentFrame2, {
+      index: model2Count - 1,
+      snap: 'index',
+      ease: 'none',
+      duration: 2,
+      onUpdate: render2,
+    })
+    // 4. Model 2 уезжает вправо
+    .to(canvasRef2.value, { x: '150%', duration: 1, ease: 'power1.inOut' }, '+=0.2');
 });
 
 onUnmounted(() => {
@@ -117,36 +162,53 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section ref="sectionRef" class="relative h-[400vh] bg-background-primary">
-    <!-- Sticky Container for Canvas and Overlay -->
-    <div class="sticky top-0 h-screen w-full overflow-hidden">
-      <canvas ref="canvasRef" class="absolute top-0 left-0 w-full h-full object-cover z-0"></canvas>
+  <section
+    ref="sectionRef"
+    class="relative h-screen bg-background-primary overflow-hidden"
+    style="
+      background-image: url('/backgraund.png');
+      background-size: cover;
+      background-position: center;
+    "
+  >
+    <!-- Canvas 1 -->
+    <canvas ref="canvasRef1" class="absolute top-0 left-0 w-full h-full object-cover z-10"></canvas>
 
-      <!-- Overlay Content -->
-      <div
-        class="absolute inset-0 bg-background-overlay/40 z-10 flex flex-col items-center justify-center text-center px-4"
-      >
-        <div class="relative z-20">
-          <h1
-            class="text-primary-main font-script text-6xl md:text-8xl lg:text-9xl mb-4 drop-shadow-lg opacity-0 animate-fade-in-up"
-            style="animation-delay: 0.5s; animation-fill-mode: forwards"
+    <!-- Canvas 2 (initially hidden/offset) -->
+    <canvas
+      ref="canvasRef2"
+      class="absolute top-0 left-0 w-full h-full object-cover z-10 opacity-0"
+      style="transform: translateX(-100%)"
+    ></canvas>
+
+    <!-- Overlay Content -->
+    <div
+      class="absolute inset-0 bg-background-overlay/10 z-20 flex flex-col justify-center items-start px-4 md:px-20 pointer-events-none"
+    >
+      <div class="relative z-20 pointer-events-auto w-full md:w-1/2 text-left">
+        <img
+          src="/title.svg"
+          alt="Bon appetit"
+          class="mb-6 drop-shadow-xl opacity-0 animate-fade-in-up w-full max-w-xl transform -rotate-6 origin-left"
+          style="animation-delay: 0.5s; animation-fill-mode: forwards"
+        />
+        <p
+          class="text-text-primary font-primary text-sm md:text-base max-w-lg mb-10 opacity-0 animate-fade-in-up tracking-wide"
+          style="animation-delay: 1s; animation-fill-mode: forwards"
+        >
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque vel eros sit amet nulla
+          pellentesque cursus nbam.
+        </p>
+        <div
+          class="opacity-0 animate-fade-in-up"
+          style="animation-delay: 1.5s; animation-fill-mode: forwards"
+        >
+          <UiButton
+            variant="primary"
+            size="lg"
+            class="px-12 py-4 text-sm tracking-[0.2em] font-bold !rounded-sm"
+            >TASTEFULL</UiButton
           >
-            Bon <br />
-            appetit!
-          </h1>
-          <p
-            class="text-text-primary font-primary text-sm md:text-base max-w-md mx-auto mb-8 opacity-0 animate-fade-in-up"
-            style="animation-delay: 1s; animation-fill-mode: forwards"
-          >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque vel eros sit amet nulla
-            pellentesque cursus nbam.
-          </p>
-          <div
-            class="opacity-0 animate-fade-in-up"
-            style="animation-delay: 1.5s; animation-fill-mode: forwards"
-          >
-            <UiButton variant="primary" size="lg">Tastefull</UiButton>
-          </div>
         </div>
       </div>
     </div>
