@@ -10,6 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
 const canvasRef1 = ref<HTMLCanvasElement | null>(null);
 const canvasRef2 = ref<HTMLCanvasElement | null>(null);
 const sectionRef = ref<HTMLElement | null>(null);
+const backgroundLoaded = ref(false);
 
 const model1Count = 27;
 const model2Count = 13;
@@ -20,14 +21,26 @@ const model2Images: HTMLImageElement[] = [];
 const imagesLoaded = ref(0);
 
 const preloadImages = () => {
-  // Load Model 1
-  for (let i = 1; i <= model1Count; i++) {
+  // Load Model 1 - приоритет на первое изображение
+  const firstImg = new Image();
+  firstImg.src = `/animation/model-1/0001.png`;
+  firstImg.onload = () => {
+    model1Images[0] = firstImg;
+    imagesLoaded.value++;
+    // Отрисовываем первое изображение сразу
+    if (canvasRef1.value) {
+      renderCanvas(canvasRef1.value, model1Images, 0);
+    }
+  };
+  model1Images[0] = firstImg;
+
+  // Загружаем остальные кадры Model 1
+  for (let i = 2; i <= model1Count; i++) {
     const img = new Image();
     const frameIndex = String(i).padStart(4, '0');
     img.src = `/animation/model-1/${frameIndex}.png`;
     img.onload = () => {
       imagesLoaded.value++;
-      if (imagesLoaded.value === 1) render1();
     };
     model1Images.push(img);
   }
@@ -112,20 +125,46 @@ const handleResize = () => {
   }
 };
 
+// Ленивая загрузка фона
+const loadBackground = () => {
+  const bgImg = new Image();
+  bgImg.src = '/backgraund.png';
+  bgImg.onload = () => {
+    if (sectionRef.value) {
+      sectionRef.value.style.backgroundImage = `url('/backgraund.png')`;
+      backgroundLoaded.value = true;
+    }
+  };
+};
+
 onMounted(() => {
   handleResize();
   window.addEventListener('resize', handleResize);
+
+  // Загружаем фон после загрузки страницы (lazy loading)
+  loadBackground();
+
   preloadImages();
 
-  // Анимация появления canvas после заголовка
+  // Анимация появления canvas одновременно с заголовком или сразу после
   if (canvasRef1.value) {
     gsap.set(canvasRef1.value, { opacity: 0 });
-    gsap.to(canvasRef1.value, {
-      opacity: 1,
-      duration: 1,
-      delay: 1.2, // Появляется после заголовка (заголовок с задержкой 0.5s)
-      ease: 'power2.out',
-    });
+    // Проверяем, загружено ли первое изображение перед показом canvas
+    const checkAndShow = () => {
+      if (model1Images[0] && model1Images[0].complete) {
+        render1();
+        gsap.to(canvasRef1.value, {
+          opacity: 1,
+          duration: 1,
+          delay: 1.6, // Появляется после заголовка (заголовок: delay 0.5s + duration 1s = 1.5s)
+          ease: 'power2.out',
+        });
+      } else {
+        // Если еще не загружено, ждем
+        setTimeout(checkAndShow, 50);
+      }
+    };
+    checkAndShow();
   }
 
   const tl = gsap.timeline({
@@ -176,11 +215,11 @@ onUnmounted(() => {
   <section
     ref="sectionRef"
     class="relative h-screen bg-background-primary overflow-hidden"
-    style="
-      background-image: url('/backgraund.png');
-      background-size: cover;
-      background-position: center;
-    "
+    :style="{
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundImage: backgroundLoaded ? `url('/backgraund.png')` : 'none',
+    }"
   >
     <!-- Canvas 1 -->
     <canvas
