@@ -11,7 +11,7 @@ onMounted(() => {
     // console.log(e)
   });
 
-  function raf(time) {
+  function raf(time: number) {
     lenis.raf(time);
     requestAnimationFrame(raf);
   }
