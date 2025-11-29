@@ -9,8 +9,9 @@ let observer: IntersectionObserver | null = null;
 onMounted(() => {
   if (target.value) {
     observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
+      (entries) => {
+        const entry = entries[0];
+        if (entry && entry.isIntersecting) {
           isVisible.value = true;
           // Опционально: отключить наблюдение после появления, если анимация нужна только один раз
           // observer?.disconnect();
