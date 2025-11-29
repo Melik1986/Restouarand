@@ -117,6 +117,17 @@ onMounted(() => {
   window.addEventListener('resize', handleResize);
   preloadImages();
 
+  // Анимация появления canvas после заголовка
+  if (canvasRef1.value) {
+    gsap.set(canvasRef1.value, { opacity: 0 });
+    gsap.to(canvasRef1.value, {
+      opacity: 1,
+      duration: 1,
+      delay: 1.2, // Появляется после заголовка (заголовок с задержкой 0.5s)
+      ease: 'power2.out',
+    });
+  }
+
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: sectionRef.value,
@@ -172,7 +183,11 @@ onUnmounted(() => {
     "
   >
     <!-- Canvas 1 -->
-    <canvas ref="canvasRef1" class="absolute top-0 left-0 w-full h-full object-cover z-10"></canvas>
+    <canvas
+      ref="canvasRef1"
+      class="absolute top-0 left-0 w-full h-full object-cover z-10"
+      style="opacity: 0"
+    ></canvas>
 
     <!-- Canvas 2 (initially hidden/offset) -->
     <canvas
