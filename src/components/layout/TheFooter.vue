@@ -59,12 +59,12 @@ onMounted(() => {
       </div>
 
       <!-- Map / Socials -->
-      <div class="flex flex-col items-end justify-center footer-col">
+      <div class="flex flex-col items-end md:justify-center footer-col w-full">
         <!-- World Map -->
-        <div class="w-full max-w-[240px] mb-8">
-          <IconWorldMap />
+        <div class="w-full md:max-w-[240px] mb-8 flex justify-end">
+          <IconWorldMap class="w-full" />
         </div>
-        <div class="flex gap-4">
+        <div class="flex gap-4 justify-end w-full md:w-auto">
           <a
             href="#"
             class="w-8 h-8 rounded-full border border-primary-main flex items-center justify-center text-primary-main hover:bg-primary-main hover:text-background-primary transition-colors duration-300"

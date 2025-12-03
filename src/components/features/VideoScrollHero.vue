@@ -224,22 +224,25 @@ onUnmounted(() => {
     <!-- Canvas 1 -->
     <canvas
       ref="canvasRef1"
-      class="absolute top-0 left-0 w-full h-full object-cover z-10"
+      class="absolute top-0 left-0 w-full h-full object-cover z-30"
       style="opacity: 0"
     ></canvas>
 
     <!-- Canvas 2 (initially hidden/offset) -->
     <canvas
       ref="canvasRef2"
-      class="absolute top-0 left-0 w-full h-full object-cover z-10 opacity-0"
+      class="absolute top-0 left-0 w-full h-full object-cover z-30 opacity-0"
       style="transform: translateX(-100%)"
     ></canvas>
 
+    <!-- Dark Overlay for background only -->
+    <div class="absolute inset-0 bg-background-overlay/10 z-10 pointer-events-none"></div>
+
     <!-- Overlay Content -->
     <div
-      class="absolute inset-0 bg-background-overlay/10 z-20 flex flex-col justify-center items-start px-4 md:px-20 pointer-events-none"
+      class="absolute inset-0 z-40 flex flex-col justify-center items-start px-4 md:px-20 pointer-events-none"
     >
-      <div class="relative z-20 pointer-events-auto w-full md:w-1/2 text-left">
+      <div class="relative z-50 pointer-events-auto w-full md:w-1/2 text-left mb-32 md:mb-0">
         <img
           src="/title.svg"
           alt="Bon appetit"
@@ -260,7 +263,7 @@ onUnmounted(() => {
           <UiButton
             variant="primary"
             size="lg"
-            class="px-12 py-4 text-sm tracking-[0.2em] font-bold !rounded-sm"
+            class="px-12 py-4 text-sm tracking-[0.2em] font-bold !rounded-sm !bg-primary-main/20 backdrop-blur-md !text-primary-main border border-primary-main/50 hover:!bg-primary-main/40 transition-all"
             >TASTEFULL</UiButton
           >
         </div>

@@ -70,34 +70,26 @@ bun run preview
 
 ```
 web-app/
-├── public/                 # Статические файлы
-│   ├── animation/          # Кадры анимаций моделей (model-1 до model-6)
-│   ├── backgraund.png     # Фоновое изображение для Hero секции
-│   ├── Interior.jpg       # Изображение интерьера
-│   ├── map.svg            # SVG карты мира
-│   └── title.svg          # SVG логотипа/заголовка
+├── public/                 # Статические файлы и ассеты анимаций
+│   ├── animation/          # Секвенции кадров (model-1..6)
+│   └── ...
 ├── src/
 │   ├── components/
-│   │   ├── features/       # Функциональные компоненты
-│   │   │   ├── ProductCard.vue      # Карточка товара с анимацией
-│   │   │   ├── ProductsGrid.vue    # Сетка товаров с пинингом
-│   │   │   └── VideoScrollHero.vue # Hero секция с моделями
-│   │   ├── layout/        # Компоненты макета
-│   │   │   ├── TheFooter.vue       # Футер сайта
-│   │   │   └── TheNavbar.vue       # Навигационная панель
-│   │   └── ui/            # UI компоненты
-│   │       ├── SectionTitle.vue     # Заголовок секции
-│   │       ├── UiButton.vue        # Кнопка
-│   │       └── icons/              # SVG иконки
-│   ├── views/
-│   │   └── HomeView.vue   # Главная страница
-│   ├── style.css          # Глобальные стили
-│   └── main.ts            # Точка входа приложения
-├── .eslintrc.js           # Конфигурация ESLint
-├── .prettierrc            # Конфигурация Prettier
-├── tailwind.config.js     # Конфигурация Tailwind CSS
-├── tsconfig.json          # Конфигурация TypeScript
-└── vite.config.ts         # Конфигурация Vite
+│   │   ├── features/       # "Умные" компоненты с бизнес-логикой
+│   │   │   ├── ProductCard.vue
+│   │   │   ├── ProductsGrid.vue
+│   │   │   └── VideoScrollHero.vue # Canvas + GSAP логика
+│   │   ├── layout/         # Каркасные компоненты (Header, Footer)
+│   │   └── ui/             # Переиспользуемые Dumb-компоненты (UI Kit)
+│   │       ├── SectionTitle.vue
+│   │       ├── UiButton.vue
+│   │       └── icons/
+│   ├── views/              # Страницы приложения
+│   │   └── HomeView.vue
+│   ├── style.css           # Tailwind директивы и глобальные стили
+│   └── main.ts             # Инициализация Vue
+├── .trae/                  # AI Context (правила, доки, промпты)
+├── ...configs
 ```
 
 ## ✨ Основные возможности
@@ -124,7 +116,25 @@ web-app/
 - Оптимизация производительности через ленивую загрузку изображений
 - TypeScript для типобезопасности
 
-## 🔧 Конфигурация
+## �️ Стандарты ассетов
+
+Для корректной работы 3D-анимации скролла необходимо соблюдать строгую структуру файлов:
+
+- **Путь**: `public/animation/model-{N}/`
+- **Формат**: PNG с прозрачным фоном
+- **Нейминг**: Четырехзначный номер (например, `0001.png`, `0027.png`)
+- **Последовательность**: Кадры должны идти без пропусков
+
+Пример:
+```
+public/animation/
+  ├── model-1/
+  │   ├── 0001.png
+  │   └── ...
+  │   └── 0027.png
+```
+
+## � Конфигурация
 
 ### Tailwind CSS
 Настроен с кастомными цветами и типографикой для брендинга "Sweet Tooth".
@@ -142,6 +152,16 @@ web-app/
 - **Vue 3 Composition API** - Использование `<script setup>`
 - **BEM методология** - Для SCSS (где используется)
 - **Conventional Commits** - Формат сообщений коммитов
+
+## 🤖 AI & Development Context
+
+Проект настроен для работы с AI-ассистентами (Trae/Cursor).
+
+- **`.trae/rules/`**: Содержит строгие правила разработки (Code Style, TypeScript, Git Flow).
+- **`.trae/documents/`**: Архитектурные решения и дизайн-документация.
+- **`.trae/rules/components.json`**: Реестр используемых UI-библиотек.
+
+⚠️ **Важно**: Не удаляйте папку `.trae`, так как она содержит критический контекст для автоматизации разработки.
 
 ## 🚀 Деплой
 
