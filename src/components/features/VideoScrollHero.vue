@@ -242,7 +242,7 @@ onUnmounted(() => {
     <div
       class="absolute inset-0 z-40 flex flex-col justify-center items-start px-4 md:px-20 pointer-events-none"
     >
-      <div class="relative z-50 pointer-events-auto w-full md:w-1/2 text-left mb-32 md:mb-0">
+      <div class="relative z-50 pointer-events-auto w-full md:w-1/2 text-left mb-[18rem] md:mb-0">
         <img
           src="/title.svg"
           alt="Bon appetit"

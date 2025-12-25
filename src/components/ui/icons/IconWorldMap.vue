@@ -9,7 +9,7 @@ let observer: IntersectionObserver | null = null;
 onMounted(() => {
   if (target.value) {
     observer = new IntersectionObserver(
-      (entries) => {
+      entries => {
         const entry = entries[0];
         if (entry && entry.isIntersecting) {
           isVisible.value = true;
