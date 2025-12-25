@@ -10,7 +10,40 @@ gsap.registerPlugin(ScrollTrigger);
 const canvasRef1 = ref<HTMLCanvasElement | null>(null);
 const canvasRef2 = ref<HTMLCanvasElement | null>(null);
 const sectionRef = ref<HTMLElement | null>(null);
+const heroTextRef = ref<HTMLElement | null>(null);
 const backgroundLoaded = ref(false);
+
+/** Разбивает текст на отдельные span элементы для анимации */
+const splitTextIntoChars = (element: HTMLElement): HTMLSpanElement[] => {
+  const text = element.textContent || '';
+  element.textContent = '';
+  const chars: HTMLSpanElement[] = [];
+  text.split('').forEach(char => {
+    const span = document.createElement('span');
+    span.textContent = char === ' ' ? '\u00A0' : char;
+    span.style.display = 'inline-block';
+    span.style.opacity = '0';
+    element.appendChild(span);
+    chars.push(span);
+  });
+  return chars;
+};
+
+/** Анимирует разбитый текст с эффектом появления */
+const animateSplitText = (element: HTMLElement, delay: number): void => {
+  const chars = splitTextIntoChars(element);
+  gsap.to(chars, {
+    opacity: 1,
+    y: 0,
+    duration: 0.03,
+    stagger: 0.02,
+    delay,
+    ease: 'power2.out',
+    onStart: () => {
+      gsap.set(chars, { y: 20 });
+    },
+  });
+};
 
 const model1Count = 27;
 const model2Count = 13;
@@ -146,6 +179,11 @@ onMounted(() => {
 
   preloadImages();
 
+  // SplitText анимация для параграфа hero
+  if (heroTextRef.value) {
+    animateSplitText(heroTextRef.value, 1);
+  }
+
   // Анимация появления canvas одновременно с заголовком или сразу после
   if (canvasRef1.value) {
     gsap.set(canvasRef1.value, { opacity: 0 });
@@ -250,8 +288,8 @@ onUnmounted(() => {
           style="animation-delay: 0.5s; animation-fill-mode: forwards"
         />
         <p
-          class="text-text-primary font-primary text-sm md:text-base max-w-lg mb-10 opacity-0 animate-fade-in-up tracking-wide"
-          style="animation-delay: 1s; animation-fill-mode: forwards"
+          ref="heroTextRef"
+          class="text-text-primary font-primary text-sm md:text-base max-w-lg mb-10 tracking-wide"
         >
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque vel eros sit amet nulla
           pellentesque cursus nbam.
